@@ -1,3 +1,9 @@
 [workspace]
 resolver = "3"
-members = []
+members = [
+    "smart-home-lib",
+    "smart-socket-lib",
+    "smart-thermo-lib",
+    "socket-bin",
+    "thermo-bin",
+]

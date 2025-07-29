@@ -1,0 +1,15 @@
+[package]
+name = "socket-bin"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+smart-socket-lib = { path = "../smart-socket-lib" }
+tokio = { version = "1.19.2", features = [
+    "net",
+    "macros",
+    "rt-multi-thread",
+    "io-util",
+    "sync",
+] }
+clap = { version = "4", features = ["derive"] }
