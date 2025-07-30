@@ -28,9 +28,9 @@ async fn main() {
 
     println!("Иммитатор умной розетки запущен на {}", { server_address });
 
-    while let Ok((mut stream, addr)) = listener.accept().await {
-        let peer = addr.to_string();
-        println!("Установлено соединение {}", { &peer });
+    while let Ok((mut stream, _addr)) = listener.accept().await {
+        // let peer = addr.to_string();
+        // println!("Установлено соединение {}", { &peer });
 
         let smart_socket = smart_socket.clone();
         tokio::spawn(async move {
@@ -46,10 +46,10 @@ async fn main() {
                 };
             }
 
-            println!(
-                "Соединение с {} потеряно. Ожидаются новые соединения...",
-                { &peer }
-            );
+            // println!(
+            //     "Соединение с {} потеряно. Ожидаются новые соединения...",
+            //     { &peer }
+            // );
         });
     }
 }

@@ -4,3 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+smart-socket-lib = { path = "../smart-socket-lib" }
+smart-thermo-lib = { path = "../smart-thermo-lib" }
+tokio = { version = "1.45.1", features = [
+    "net",
+    "macros",
+    "rt-multi-thread",
+    "io-util",
+] }

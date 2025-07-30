@@ -1,20 +1,26 @@
-use std::{net::SocketAddr, time::Duration};
+use std::{error::Error, fs, net::SocketAddr, path::Path, time::Duration};
 
+use serde::Deserialize;
 use tokio::{
     net::UdpSocket,
     time::{self, Instant},
 };
 
+#[derive(Debug, Deserialize)]
+struct Config {
+    receiver_addr: String,
+    interval_secs: f32,
+}
+
 #[tokio::main]
 async fn main() {
-    let args = std::env::args();
-    let mut args = args.skip(1);
+    let config = read_config(Path::new("./thermo-bin/config.toml"))
+        .expect("Ожидается корректный файл с настройками");
 
-    let receiver = args.next().unwrap_or_else(|| "127.0.0.1:4321".into());
+    println!("Адрес получателя: {}", &config.receiver_addr);
 
-    println!("Адрес получателя: {}", receiver);
-
-    let receiver = receiver
+    let receiver_addr = config
+        .receiver_addr
         .parse::<SocketAddr>()
         .expect("Ожидается корректный адрес получателя");
 
@@ -24,18 +30,29 @@ async fn main() {
         .expect("Невозможно привязать сокет");
     let temperature_generator = TemperatureGenerator::default();
 
-    println!("Отправка температуры с {bind_addr} на {receiver}");
+    println!("Иммитатор уммного термометра запущен на {}", { bind_addr });
+
+    println!(
+        "Отправка температуры с {} на {}",
+        &bind_addr, &config.receiver_addr
+    );
     loop {
         let temperature = temperature_generator.generate();
         let bytes = temperature.to_be_bytes();
-        let send_result = socket.send_to(&bytes, receiver).await;
+        let send_result = socket.send_to(&bytes, receiver_addr).await;
         if let Err(err) = send_result {
             println!("Не удалось отправить температуру: {}", err);
         }
 
-        let duration = Duration::from_secs_f32(0.5);
+        let duration = Duration::from_secs_f32(config.interval_secs);
         time::sleep(duration).await;
     }
+}
+
+fn read_config(path: &Path) -> Result<Config, Box<dyn Error>> {
+    let content = fs::read_to_string(path)?;
+    let config: Config = toml::from_str(&content)?;
+    Ok(config)
 }
 
 struct TemperatureGenerator {
